@@ -485,7 +485,7 @@ unsigned int returnToLastMenu(ZupperMenu *zppm) {
 }
 
 	void zupperSTARTK(ZupperMenu *zppm) {
-
+		gfxExit();
 		exit(0);
 	}
 	void zupperAK(ZupperMenu *zppm) {
