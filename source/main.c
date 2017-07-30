@@ -1,6 +1,7 @@
 #include "zupper.h"
 
 void handle_msg(ZupperMenu *zppm, ZOptionList **o) {
+	printf("\x1b[22;5H                                         \n");
 	printf("\x1b[22;5HMESSAGE: %s  %i\n", o[6]->str, o[5]->num);
 }
 
