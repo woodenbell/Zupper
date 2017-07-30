@@ -18,9 +18,9 @@
 #define ZUPPER_H
 #define MENU_ROWS 15
 #include <3ds.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 union option_type {
 	char *str;
 	int num;

@@ -39,6 +39,7 @@ struct ll_menu {
 struct menu_struct {
 	struct menu_item_onmenu **items;
 	unsigned short *init_items;
+	unsigned int *last_len;
 	unsigned int s_n_items;
 	char selection_symbol;
 	unsigned int infinite_scroll:1;
@@ -53,6 +54,94 @@ struct menu_system {
 	struct ll_menu *llmenus;
 	struct menu_curr_system *curr_menu;
 };
+
+unsigned int strlength(char *s) {
+	unsigned int i = 0;
+	while (1) {
+		if (s[i] == '\0') {
+			//printf("Strlength of %s: %i\n", s, i);
+			return i;
+		}
+		i++;
+	}
+}
+
+char *multiplyChar(char ch, int n_times) {
+	if (n_times <= 0) {
+		return " \0";
+	}
+	else {
+		char *res = (char *) malloc(sizeof(char) * (n_times + 1));
+		int i;
+		for (i = 0; i < n_times; i++) {
+			res[i] = ch;
+		}
+		res[n_times] = '\0';
+		return res;
+	}
+}
+
+unsigned int integerLength(int n) {
+	double res = 1;
+	unsigned int i = 1;
+	unsigned int l;
+	if (n < 0) {
+		n = n * -1;
+	}
+	if (n < 10) {
+		return 1;
+	}
+	else {
+		l = 10;
+		while (res >= 1) {
+			i++;
+			l *= 10;
+			res = n / l;
+		}
+		return i;
+	}
+}
+
+void initCurrZMenuSystem(ZupperMenu *zppm) {
+	if (zppm) {
+		if (zppm->curr_menu->curr_zmenu->s_n_items > 0) {
+			unsigned int i;
+			for (i = 0; i < MENU_ROWS; i++) {
+				if (zppm->curr_menu->curr_zmenu->init_items[i]) {
+					if (zppm->curr_menu->curr_zmenu->items[i]->item) {
+						if (zppm->curr_menu->curr_zmenu->items[i]->item->type != TEXT) {
+							zppm->curr_menu->select_y = i;
+							break;
+						}
+					}
+				}
+			}
+			for (i = 0; i < MENU_ROWS; i++) {
+				if (zppm->curr_menu->curr_zmenu->init_items[i]) {
+					if (zppm->curr_menu->curr_zmenu->items[i]->item->type == STR_OPTION ||
+						zppm->curr_menu->curr_zmenu->items[i]->item->type == NUM_OPTION) {
+						zppm->curr_menu->curr_selection[i] =
+							zppm->curr_menu->curr_zmenu->items[i]->item->default_index;
+						if (zppm->curr_menu->curr_zmenu->items[i]->item->type == STR_OPTION) {
+							zppm->curr_menu->curr_zmenu->last_len[i] =
+								strlength(zppm->curr_menu->curr_zmenu->items[i]->
+									item->opt_select[zppm->curr_menu->curr_zmenu->items[i]->item->default_index]);
+						}
+						else {
+							zppm->curr_menu->curr_zmenu->last_len[i] =
+								integerLength(zppm->curr_menu->curr_zmenu->items[i]->item->
+									opt_n_select[zppm->curr_menu->curr_zmenu->items[i]->item->default_index]);
+						}
+					}
+
+
+				}
+			}
+		}
+	}
+
+}
+
 void printZMenuOptions(ZupperMenu *zppm) {
 	int i;
 	struct menu_item_onmenu *m_item;
@@ -60,20 +149,31 @@ void printZMenuOptions(ZupperMenu *zppm) {
 		m_item = zppm->curr_menu->curr_zmenu->items[i];
 		if (zppm->curr_menu->curr_zmenu->init_items[i]) {
 			if (m_item->item->type == STR_OPTION) {
-				printf("\x1b[%i;%iH%c%s%c         ", i + 7, m_item->pos + 1 + strlen(m_item->item->text),
+				//printf("Last len: %i curr len: %i\n", zppm->curr_menu->curr_zmenu->last_len[i], strlength(m_item->item->opt_select[zppm->curr_menu->curr_selection[i]]));
+				char *filler = multiplyChar(' ', zppm->curr_menu->curr_zmenu->last_len[i] -
+					strlength(m_item->item->opt_select[zppm->curr_menu->curr_selection[i]]));
+				zppm->curr_menu->curr_zmenu->last_len[i] = strlength(m_item->item->opt_select[zppm->curr_menu->curr_selection[i]]);
+				printf("\x1b[%i;%iH%c%s%c%s", i + 7, m_item->pos + 1 + strlength(m_item->item->text),
 					m_item->item->opt_wrapper[0], m_item->item->opt_select[zppm->curr_menu->curr_selection[i]],
-					m_item->item->opt_wrapper[1]);
+					m_item->item->opt_wrapper[1], filler);
 			}
 
 			if (m_item->item->type == NUM_OPTION) {
-				printf("\x1b[%i;%iH%c%i%c         ", i + 7, m_item->pos + 1 + strlen(m_item->item->text),
+				//printf("Last len: %i curr len: %i\n", zppm->curr_menu->curr_zmenu->last_len[i], integerLength(m_item->item->opt_n_select[zppm->curr_menu->curr_selection[i]]));
+				char *filler = multiplyChar(' ', zppm->curr_menu->curr_zmenu->last_len[i] -
+					integerLength(m_item->item->opt_n_select[zppm->curr_menu->curr_selection[i]]));
+				zppm->curr_menu->curr_zmenu->last_len[i] = integerLength(m_item->item->opt_n_select[zppm->curr_menu->curr_selection[i]]);
+				printf("\x1b[%i;%iH%c%i%c%s", i + 7, m_item->pos + 1 + strlength(m_item->item->text),
 					m_item->item->opt_wrapper[0], m_item->item->opt_n_select[zppm->curr_menu->curr_selection[i]],
-					m_item->item->opt_wrapper[1]);
+					m_item->item->opt_wrapper[1], filler);
 			}
 		}
 	}
 }
 void printZMenuSelection(ZupperMenu *zppm) {
+	if (zppm->curr_menu->curr_zmenu->s_n_items == 0) {
+		return;
+	}
 	int i;
 	struct menu_item_onmenu *m_item;
 	char ss = ' ';
@@ -93,8 +193,17 @@ void printZMenuSelection(ZupperMenu *zppm) {
 }
 void printZMenu(ZupperMenu *zppm) {
 	clearMenu();
-	int i;
+	unsigned int i;
 	struct menu_item_onmenu *m_item;
+	if (zppm->curr_menu->curr_zmenu->s_n_items == 0) {
+		for (i = 0; i < MENU_ROWS; i++) {
+			m_item = zppm->curr_menu->curr_zmenu->items[i];
+			if (zppm->curr_menu->curr_zmenu->init_items[i]) {
+				printf("\x1b[%i;%iH%s", i + 7, m_item->pos + 1, m_item->item->text);
+			}
+		}
+		return;
+	}
 	char ss = ' ';
 	for (i = 0; i < MENU_ROWS; i++) {
 		m_item = zppm->curr_menu->curr_zmenu->items[i];
@@ -106,7 +215,6 @@ void printZMenu(ZupperMenu *zppm) {
 				ss = ' ';
 			}
 			if (m_item->item->type == TEXT) {
-				printf("\x1b[%i;%iH%c", i + 7, m_item->pos, ss);
 				printf("\x1b[%i;%iH%s", i + 7, m_item->pos + 1, m_item->item->text);
 			}
 			if (m_item->item->type == ACTION_ITEM) {
@@ -375,39 +483,15 @@ unsigned int returnToLastMenu(ZupperMenu *zppm) {
 	}
 	return 0;
 }
-void initCurrZMenuSystem(ZupperMenu *zppm) {
-	if(zppm) {
-		if(zppm->curr_menu->curr_zmenu->s_n_items > 0) {
-			int i;
-			for(i = 0; i < MENU_ROWS; i++) {
-				if(zppm->curr_menu->curr_zmenu->init_items[i]) {
-					if (zppm->curr_menu->curr_zmenu->items[i]->item) {
-						if (zppm->curr_menu->curr_zmenu->items[i]->item->type != TEXT) {
-							zppm->curr_menu->select_y = i;
-							break;
-						}
-					}
-				}
-			}
-			for(i = 0; i < MENU_ROWS; i++) {
-					if(zppm->curr_menu->curr_zmenu->init_items[i]) {
-							if(zppm->curr_menu->curr_zmenu->items[i]->item->type == STR_OPTION ||
-									zppm->curr_menu->curr_zmenu->items[i]->item->type == NUM_OPTION) {
-								zppm->curr_menu->curr_selection[i] =
-										zppm->curr_menu->curr_zmenu->items[i]->item->default_index;
-						}
 
-
-					}
-				}
-	}
-}
-
-}
 	void zupperSTARTK(ZupperMenu *zppm) {
+
 		exit(0);
 	}
 	void zupperAK(ZupperMenu *zppm) {
+		if (zppm->curr_menu->curr_zmenu->s_n_items == 0) {
+			return;
+		}
 		if (zppm->curr_menu->curr_zmenu->items[zppm->curr_menu->select_y]->item->type == ACTION_ITEM) {
 			struct menu_item_onmenu *mit;
 			union option_type **opt_args;
@@ -552,22 +636,36 @@ void initCurrZMenuSystem(ZupperMenu *zppm) {
 	}
 
 void zupperDLEFTK(ZupperMenu *zppm) {
-	unsigned int y = zppm->curr_menu->select_y;
-	unsigned int oxpos = zppm->curr_menu->curr_selection[y];
-	if (oxpos > 0) {
-		zppm->curr_menu->curr_selection[y] = oxpos - 1;
-		printZMenuOptions(zppm);
+	if (zppm->curr_menu->curr_zmenu->s_n_items == 0) {
+		return;
+	}
+	if (zppm->curr_menu->curr_zmenu->items[zppm->curr_menu->select_y]->item->type == STR_OPTION ||
+		zppm->curr_menu->curr_zmenu->items[zppm->curr_menu->select_y]->item->type == NUM_OPTION) {
+		unsigned int y = zppm->curr_menu->select_y;
+		unsigned int oxpos = zppm->curr_menu->curr_selection[y];
+		if (oxpos > 0) {
+			zppm->curr_menu->curr_selection[y] = oxpos - 1;
+			printZMenuOptions(zppm);
+		}
 	}
 }
 
 void zupperDRIGHTK(ZupperMenu *zppm) {
+	if (zppm->curr_menu->curr_zmenu->s_n_items == 0) {
+		return;
+	}
+	if (zppm->curr_menu->curr_zmenu->items[zppm->curr_menu->select_y]->item->type == STR_OPTION ||
+		zppm->curr_menu->curr_zmenu->items[zppm->curr_menu->select_y]->item->type == NUM_OPTION) {
 	unsigned int y = zppm->curr_menu->select_y;
 	unsigned int oxpos = zppm->curr_menu->curr_selection[y];
-	if (oxpos < (zppm->curr_menu->curr_zmenu->items[y]->item->opt_len - 1)) {
-		zppm->curr_menu->curr_selection[y] = oxpos + 1;
-		printZMenuOptions(zppm);
+		if (oxpos < (zppm->curr_menu->curr_zmenu->items[y]->item->opt_len - 1)) {
+			zppm->curr_menu->curr_selection[y] = oxpos + 1;
+			printZMenuOptions(zppm);
+		}
 	}
+
 }
+
 void zupperKeysDown(ZupperMenu *zppm, u32 kd) {
 		if (kd & KEY_START) {
 			zupperSTARTK(zppm);
@@ -630,6 +728,7 @@ ZMenu *createZMenu(char select_symbol, unsigned int inf_scroll) {
 		for (i = 0; i < MENU_ROWS; i++) {
 			zm->init_items[i] = 0;
 		}
+		zm->last_len = (unsigned int *)malloc(sizeof(unsigned int) * MENU_ROWS);
 		zm->items = mi;
 		zm->infinite_scroll = inf_scroll;
 		zm->s_n_items = 0;

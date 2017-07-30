@@ -1,4 +1,5 @@
 main.o: c:/Users/Gabriel/Desktop/workspace3/Zupper/source/main.c \
+ c:/Users/Gabriel/Desktop/workspace3/Zupper/source/zupper.h \
  c:/devkitPro/libctru/include/3ds.h \
  c:/devkitPro/libctru/include/3ds/types.h \
  c:/devkitPro/libctru/include/3ds/result.h \
@@ -66,8 +67,9 @@ main.o: c:/Users/Gabriel/Desktop/workspace3/Zupper/source/main.c \
  c:/devkitPro/libctru/include/3ds/applets/swkbd.h \
  c:/devkitPro/libctru/include/3ds/sdmc.h \
  c:/devkitPro/libctru/include/3ds/romfs.h \
- c:/devkitPro/libctru/include/3ds/font.h \
- c:/Users/Gabriel/Desktop/workspace3/Zupper/source/zupper.h
+ c:/devkitPro/libctru/include/3ds/font.h
+
+c:/Users/Gabriel/Desktop/workspace3/Zupper/source/zupper.h:
 
 c:/devkitPro/libctru/include/3ds.h:
 
@@ -204,5 +206,3 @@ c:/devkitPro/libctru/include/3ds/sdmc.h:
 c:/devkitPro/libctru/include/3ds/romfs.h:
 
 c:/devkitPro/libctru/include/3ds/font.h:
-
-c:/Users/Gabriel/Desktop/workspace3/Zupper/source/zupper.h:
