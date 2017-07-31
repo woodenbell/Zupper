@@ -478,7 +478,7 @@ struct ll_menu *linkedListZMenu() {
 unsigned int returnToLastMenu(ZupperMenu *zppm) {
 	if (zppm->llmenus->size > 1) {
 		llMenuPopLast(zppm->llmenus);
-		setZMenu(zppm, llMenuGetLast(zppm->llmenus), 1);
+		setZMenu(zppm, llMenuGetLast(zppm->llmenus), 2);
 		return 1;
 	}
 	return 0;
@@ -691,14 +691,17 @@ void zupperKeysDown(ZupperMenu *zppm, u32 kd) {
 	}
 
 void setZMenu(ZupperMenu *zppm, ZMenu *zm, unsigned int maintain_last) {
-	if(zppm) {
-		if(zm) {
-			if(maintain_last == 0) {
+	if (zppm) {
+		if (zm) {
+			if (maintain_last == 0) {
 				llMenuClear(zppm->llmenus);
 			}
+			if (maintain_last != 2) {
 				llMenuAppend(zppm->llmenus, zm);
-				zppm->curr_menu->curr_zmenu = zm;
-				initCurrZMenuSystem(zppm);
+			}
+
+			zppm->curr_menu->curr_zmenu = zm;
+			initCurrZMenuSystem(zppm);
 		}
 	}
 }
