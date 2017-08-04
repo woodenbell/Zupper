@@ -57,19 +57,23 @@
     	
     	ZMenuItem *title, *msg, *exit_option, *msg_num, *msg_txt;
     	
+    	
     	//Initialize each of the items
     	
     	//Text item is not selectable, will be used as the title of the menu
     	
     	title = createZMenuTextItem("Zupper menu");
     	
-    	//Action item is selectable and will call the method handle_msg() when choosen
+    	
+    	//Action item is selectable and will call the method handle_msg() when chosen
     	
     	msg = createZMenuActionItem("Message", handle_msg);
     	
-    	//Just like msg, but will cause the application to exit
+    	
+    	//Just like msg, but will cause the application to exit by calling handle_exit()
     	
     	exit_option = createZMenuActionItem("Exit", handle_exit);
+    	
     	
     	//Creates the option wrappers for the OPTION items values
     	//Example {'(', ')'}  =>    (SimpleOption)
