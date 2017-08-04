@@ -7,7 +7,9 @@
     #include "zupper.h"
     
     
-     //Will be called when user press A on Message button
+    //Declaring the functions to be called when an item is chosen
+    
+     //Will be called when user press A on the Message item (explained below)
      
     void handle_msg(ZupperMenu *zppm, ZOptionList **o) {
         
