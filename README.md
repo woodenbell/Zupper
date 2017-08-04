@@ -13,17 +13,18 @@
      
     void handle_msg(ZupperMenu *zppm, ZOptionList **o) {
         
-     /* The first argument is a reference to the ZupperMenu
+     /* The first argument is a reference to the ZupperMenu (the strcuture wich controls
+     * the menu system).
     * The second one is an array containing the selected value in each OPTION item
     * in the menu (the index is the same as the used to add the OPTION item 
-    * with addZMenuItem()
+    * with addZMenuItem() (used below)
     */
     
 	   printf("\x1b[22;5H                                         \n");
 	   printf("\x1b[22;5HMESSAGE: %s  %i\n", o[6]->str, o[5]->num);
     }
 
-    //Called when Exit is choosen
+    //Called when Exit is chosen
     void handle_exit(ZupperMenu *zppm, ZOptionList **o) {
 	    gfxExit();
 	    exit(0);
