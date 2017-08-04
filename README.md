@@ -131,6 +131,7 @@
     	* 1 - Will keep previous menus in order to be able to return to them
     	* 2 - Internal use, when a previous menu is set to a current one in order to
     	* neither clear nor add a new menu to the stack.
+    	*/
     	
     	setZMenu(zpmenu, zmenu, 0);
     	
@@ -171,9 +172,10 @@
 	    	* effect in other items (OPTION items doesn't have inifinite scrolling
 	    	*
 	    	* DRIGHT -> Same as DLEFT but goes right
+	    	*/
 	    	
 	    	zupperKeysDown(zpmenu, kDown);
-
+	    	
 	    	//....
 	    	gfxFlushBuffers();
 	    	gfxSwapBuffers();
