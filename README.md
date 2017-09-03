@@ -14,7 +14,7 @@
      
     void handle_msg(ZupperMenu *zppm, ZOptionList **o) {
         
-     /* The first argument is a reference to the ZupperMenu (the strcuture wich controls
+     /* The first argument is a reference to the ZupperMenu (the structure that controls
      * the menu system).
     * The second one is an array containing the selected value in each OPTION item
     * in the menu (the index is the same as the used to add the OPTION item 
